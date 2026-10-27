@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#eef1f5">
+  <title>Crash Rocket</title>
+  <link rel="stylesheet" href="/web/style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">↗</div>
+        <div>
+          <h1>Crash Rocket</h1>
+          <p>ARCADE GAME</p>
+        </div>
+      </div>
+      <button class="avatar" id="profileButton">U</button>
+    </header>
+
+    <section class="balance-card">
+      <div>
+        <span class="muted">ТВОЙ БАЛАНС</span>
+        <div class="balance"><span id="balance">1 000</span> <small>CR</small></div>
+      </div>
+      <div class="coin-icon">₵</div>
+    </section>
+
+    <section class="game-card">
+      <div class="game-top">
+        <span class="live-dot"></span>
+        <span id="roundStatus">ОЖИДАНИЕ РАУНДА</span>
+        <span class="round-number" id="roundNumber">#001</span>
+      </div>
+
+      <div class="game-screen" id="gameScreen">
+        <div class="stars"></div>
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="multiplier" id="multiplier">1.00x</div>
+        
+<div class="rocket" id="rocket">
+<svg class="flight-trail" viewBox="0 0 400 270" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="trailGradient" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3478f6" stop-opacity="0"/>
+      <stop offset="55%" stop-color="#49baff" stop-opacity=".65"/>
+      <stop offset="100%" stop-color="#b9efff" stop-opacity="1"/>
+    </linearGradient>
+    <filter id="trailGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+  <path id="trailGlowPath" d="" fill="none" stroke="#48aaff"
+        stroke-width="8" opacity=".5" filter="url(#trailGlow)"
+        stroke-linecap="round"/>
+  <path id="trailPath" d="" fill="none" stroke="url(#trailGradient)"
+        stroke-width="3" stroke-linecap="round"/>
+</svg>
+
+  <svg viewBox="0 0 100 150" aria-label="Ракета" role="img">
+    <defs>
+      <linearGradient id="body" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#7B91A8"/>
+        <stop offset="35%" stop-color="#FFFFFF"/>
+        <stop offset="70%" stop-color="#DCE8F5"/>
+        <stop offset="100%" stop-color="#7895B8"/>
+      </linearGradient>
+      <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#FFFFFF"/>
+        <stop offset="45%" stop-color="#68D7FF"/>
+        <stop offset="100%" stop-color="#2878FF" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <path d="M35 91 L17 119 L18 79 L35 56 Z"
+          fill="#3989F7" stroke="#8BCBFF" stroke-width="2"/>
+    <path d="M65 91 L83 119 L82 79 L65 56 Z"
+          fill="#3989F7" stroke="#8BCBFF" stroke-width="2"/>
+
+    <path d="M50 5
+             C35 20 27 40 28 69
+             L34 108
+             Q50 119 66 108
+             L72 69
+             C73 40 65 20 50 5 Z"
+          fill="url(#body)" stroke="#B9D8FF" stroke-width="2"/>
+
+    <path d="M50 5 C42 17 39 26 38 36 L62 36 C61 26 58 17 50 5 Z"
+          fill="#55A8FF"/>
+
+    <circle cx="50" cy="54" r="12"
+            fill="#172638" stroke="#5EAFFF" stroke-width="4"/>
+    <circle cx="50" cy="54" r="6" fill="#A7E8FF"/>
+
+    <path d="M43 106 L43 122 L50 132 L57 122 L57 106 Z"
+          fill="#4E7EA9"/>
+
+    <path d="M44 122 L50 149 L56 122 L50 130 Z"
+          fill="url(#flame)"/>
+  </svg>
+</div>
+
+        <div class="game-caption" id="gameCaption">Приготовься к запуску</div>
+      </div>
+
+      <div class="history">
+        <span class="muted">ПОСЛЕДНИЕ РАУНДЫ</span>
+        <div id="historyList" class="history-list">
+          <span class="history-item">—</span>
+          <span class="history-item">—</span>
+          <span class="history-item">—</span>
+          <span class="history-item">—</span>
+          <span class="history-item">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="bet-card">
+      <div class="section-heading">
+        <h2>Твоя ставка</h2>
+        <span class="muted">ВИРТУАЛЬНЫЕ CR</span>
+      </div>
+
+      <div class="bet-input-row">
+        <button class="amount-button" id="halfButton">½</button>
+        <input id="betAmount" type="number" min="1" value="100" inputmode="numeric">
+        <button class="amount-button" id="doubleButton">×2</button>
+      </div>
+
+      <div class="quick-bets">
+        <button data-amount="50">50</button>
+        <button data-amount="100">100</button>
+        <button data-amount="250">250</button>
+        <button data-amount="500">500</button>
+      </div>
+
+      <button class="main-button" id="actionButton">Поставить 100 CR</button>
+      <p class="hint" id="hint">Баланс и ставки — только игровые, без реальных денег.</p>
+    </section>
+
+    <section class="players-card">
+      <div class="section-heading">
+        <h2>Игроки раунда</h2>
+        <span class="player-count" id="playerCount">1 игрок</span>
+      </div>
+      <div class="player-row">
+        <div class="player-avatar">U</div>
+        <div class="player-info">
+          <strong id="playerName">Ты</strong>
+          <span id="playerBet">Ожидает ставку</span>
+        </div>
+        <strong class="player-result" id="playerResult">—</strong>
+      </div>
+    </section>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="game">
+        <span>⌂</span>Игра
+      </button>
+      <button class="nav-item" data-tab="history">
+        <span>◷</span>История
+      </button>
+      <button class="nav-item" data-tab="top">
+        <span>♜</span>Топ
+      </button>
+      <button class="nav-item" data-tab="profile">
+        <span>◉</span>Профиль
+      </button>
+    </nav>
+  </main>
+  <script src="/web/app.js"></script>
+</body>
+</html>
