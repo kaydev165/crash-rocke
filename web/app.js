@@ -1,11 +1,11 @@
-﻿
+
 const tg = window.Telegram?.WebApp;
 tg?.ready();
 tg?.expand();
 
 const $ = id => document.getElementById(id);
 
-const userId = String(tg?.initDataUnsafe?.user?.id || "");
+const userId = String(tg?.initDataUnsafe?.user?.id || "demo");
 
 let balance = 1000;
 let bet = 100;
@@ -29,7 +29,7 @@ async function api(path, options = {}) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.detail || "РћС€РёР±РєР° СЃРµСЂРІРµСЂР°");
+    throw new Error(data.detail || "Ошибка сервера");
   }
 
   return data;
@@ -50,22 +50,22 @@ function render() {
   $("multiplier").textContent = multiplier.toFixed(2) + "x";
 
   $("roundStatus").textContent =
-    phase === "waiting" ? "РћР–РР”РђРќРР• Р РђРЈРќР”Рђ" :
-    phase === "flying" ? "Р РђРљР•РўРђ Р’ РџРћР›РЃРўР•" : "Р РђРЈРќР” Р—РђР’Р•Р РЁРЃРќ";
+    phase === "waiting" ? "ОЖИДАНИЕ РАУНДА" :
+    phase === "flying" ? "РАКЕТА В ПОЛЁТЕ" : "РАУНД ЗАВЕРШЁН";
 
   $("gameCaption").textContent =
-    phase === "waiting" ? "РЎРґРµР»Р°Р№ СЃС‚Р°РІРєСѓ РґРѕ Р·Р°РїСѓСЃРєР°" :
-    phase === "flying" ? "РЈСЃРїРµР№ Р·Р°Р±СЂР°С‚СЊ РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ РІС‹РёРіСЂС‹С€" :
-    "Р Р°СѓРЅРґ Р·Р°РІРµСЂС€С‘РЅ";
+    phase === "waiting" ? "Сделай ставку до запуска" :
+    phase === "flying" ? "Успей забрать виртуальный выигрыш" :
+    "Раунд завершён";
 
   $("actionButton").textContent =
     phase === "flying" && activeBet > 0 && !cashedOut
-      ? "Р—Р°Р±СЂР°С‚СЊ " + money(activeBet * multiplier) + " CR"
+      ? "Забрать " + money(activeBet * multiplier) + " CR"
       : phase === "waiting" && activeBet > 0
-        ? "РЎС‚Р°РІРєР° РїСЂРёРЅСЏС‚Р°"
+        ? "Ставка принята"
         : phase === "crashed" || cashedOut
-          ? "РћР¶РёРґР°Р№ СЃР»РµРґСѓСЋС‰РёР№ СЂР°СѓРЅРґ"
-          : "РџРѕСЃС‚Р°РІРёС‚СЊ " + money(bet) + " CR";
+          ? "Ожидай следующий раунд"
+          : "Поставить " + money(bet) + " CR";
 
   $("actionButton").disabled =
     busy ||
@@ -74,21 +74,21 @@ function render() {
     phase === "crashed";
 
   $("playerBet").textContent = activeBet
-    ? "РЎС‚Р°РІРєР° " + money(activeBet) + " CR"
-    : "РћР¶РёРґР°РµС‚ СЃС‚Р°РІРєСѓ";
+    ? "Ставка " + money(activeBet) + " CR"
+    : "Ожидает ставку";
 
   $("playerResult").textContent = cashedOut
-    ? "Р—Р°Р±СЂР°РЅРѕ"
+    ? "Забрано"
     : activeBet && phase === "flying"
-      ? "Р’ РёРіСЂРµ"
-      : "вЂ”";
+      ? "В игре"
+      : "—";
 
   $("historyList").innerHTML = history.slice(0, 5).map(value =>
     `<span class="history-item ${value >= 2 ? "good" : "bad"}">${Number(value).toFixed(2)}x</span>`
-  ).join("") || '<span class="history-item">вЂ”</span>';
+  ).join("") || '<span class="history-item">—</span>';
 
   $("playerName").textContent =
-    tg?.initDataUnsafe?.user?.first_name || "РўС‹";
+    tg?.initDataUnsafe?.user?.first_name || "Ты";
 
   $("profileButton").textContent =
     (tg?.initDataUnsafe?.user?.first_name || "U").slice(0, 1).toUpperCase();
@@ -135,7 +135,7 @@ async function refreshState() {
 
     render();
   } catch (error) {
-    showMessage("РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ РёРіСЂС‹: " + error.message);
+    showMessage("Не удалось получить состояние игры: " + error.message);
   }
 }
 
@@ -178,7 +178,7 @@ $("actionButton").addEventListener("click", async () => {
       balance = data.balance;
       activeBet = bet;
       cashedOut = false;
-      showMessage("РЎС‚Р°РІРєР° РїСЂРёРЅСЏС‚Р° СЃРµСЂРІРµСЂРѕРј.");
+      showMessage("Ставка принята сервером.");
     } else if (phase === "flying" && activeBet > 0 && !cashedOut) {
       const data = await api("/api/cashout", {
         method: "POST",
@@ -188,8 +188,8 @@ $("actionButton").addEventListener("click", async () => {
       balance = data.balance;
       cashedOut = true;
       showMessage(
-        "Р—Р°Р±СЂР°РЅРѕ " + money(data.payout) +
-        " CR РїСЂРё " + data.multiplier.toFixed(2) + "x"
+        "Забрано " + money(data.payout) +
+        " CR при " + data.multiplier.toFixed(2) + "x"
       );
     }
   } catch (error) {
@@ -209,17 +209,16 @@ document.querySelectorAll("[data-tab]").forEach(button => {
     if (button.dataset.tab !== "game") {
       showMessage(
         button.dataset.tab === "history"
-          ? "РСЃС‚РѕСЂРёСЏ СЂР°СѓРЅРґРѕРІ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РЅР°Рґ СЃС‚Р°РІРєРѕР№."
+          ? "История раундов отображается над ставкой."
           : button.dataset.tab === "top"
-            ? "РўР°Р±Р»РёС†Р° Р»РёРґРµСЂРѕРІ РґРѕР±Р°РІРёРј СЃР»РµРґСѓСЋС‰РёРј СЌС‚Р°РїРѕРј."
-            : "РџСЂРѕС„РёР»СЊ РґРѕР±Р°РІРёРј СЃР»РµРґСѓСЋС‰РёРј СЌС‚Р°РїРѕРј."
+            ? "Таблица лидеров добавим следующим этапом."
+            : "Профиль добавим следующим этапом."
       );
     } else {
-      showMessage("Р‘Р°Р»Р°РЅСЃ Рё СЃС‚Р°РІРєРё вЂ” С‚РѕР»СЊРєРѕ РІРёСЂС‚СѓР°Р»СЊРЅС‹Рµ CR.");
+      showMessage("Баланс и ставки — только виртуальные CR.");
     }
   });
 });
 
 refreshState();
 setInterval(refreshState, 200);
-
